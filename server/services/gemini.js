@@ -27,7 +27,7 @@ async function askBiblioIA(userQuery, userId) {
     return response.text();
   } catch (error) {
     console.error('Gemini API Error:', error);
-    return "Lo siento, tuve un problema consultando mi cerebro de Google. ¿Puedes intentarlo de nuevo?";
+    return "Lo siento, tuve un problema consultando el procesado. ¿Puedes intentarlo de nuevo?";
   }
 }
 

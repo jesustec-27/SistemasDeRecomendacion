@@ -21,7 +21,7 @@ Sistema de recomendación de libros basado en servicios web para la Facultad de 
 
 ### Requisitos previos
 - Node.js v18+
-- Una API Key de Anthropic (Claude)
+- Una API key proveída por Google AI Studio
 
 ### Pasos
 
@@ -40,7 +40,7 @@ Sistema de recomendación de libros basado en servicios web para la Facultad de 
    Crea un archivo `.env` en la carpeta `server/` con:
    ```env
    PORT=3001
-   ANTHROPIC_API_KEY=tu_clave_aqui
+   GOOGLE_API_KEY=EXAMPLE
    ```
 
 3. **Ejecución**:

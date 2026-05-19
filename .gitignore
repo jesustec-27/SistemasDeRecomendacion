@@ -2,7 +2,7 @@
 node_modules/
 .pnpm-debug.log*
 
-# Configuración y Secretos (¡IMPORTANTE!)
+# Configuración y Secretos
 .env
 server/.env
 
