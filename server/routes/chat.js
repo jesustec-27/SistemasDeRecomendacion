@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { askBiblioIA } = require('../services/claude');
+const { askBiblioIA } = require('../services/gemini');
 
 router.post('/', async (req, res) => {
   const { query, userId } = req.body;

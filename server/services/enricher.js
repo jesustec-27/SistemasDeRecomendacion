@@ -6,7 +6,7 @@ async function enrichWithOpenLibrary(book) {
   // Por ahora, si no hay ISBN, devolvemos el libro tal cual.
   if (!book.isbn) {
     // Intento heurístico: si el título tiene algo que parece ISBN
-    const isbnMatch = book.title?.match(/(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[0-9X- ]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[0-9X- ]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]/i);
+    const isbnMatch = book.title?.match(/(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}|(?=(?:[0-9]+[\- ]){3})[0-9X\- ]{13}|97[89][0-9]{10}|(?=(?:[0-9]+[\- ]){4})[0-9X\- ]{17})(?:97[89][\- ]?)?[0-9]{1,5}[\- ]?[0-9]+[\- ]?[0-9]+[\- ]?[0-9X]/i);
     if (isbnMatch) {
       book.isbn = isbnMatch[0].replace(/[^0-9X]/gi, '');
     }
