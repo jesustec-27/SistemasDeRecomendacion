@@ -5,9 +5,9 @@ import Home from './pages/Home';
 import BookDetail from './pages/BookDetail';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
-import { useUser } from './hooks/useUser';
+import { useUser, UserProvider } from './hooks/useUser';
 
-function App() {
+function AppContent() {
   const { user, loading } = useUser();
 
   if (loading) return <div className="flex h-screen items-center justify-center">Cargando...</div>;
@@ -33,4 +33,13 @@ function App() {
   );
 }
 
+function App() {
+  return (
+    <UserProvider>
+      <AppContent />
+    </UserProvider>
+  );
+}
+
 export default App;
+

@@ -1,11 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { ChevronLeft, ExternalLink, Book as BookIcon, Hash, Building, Calendar, Info } from 'lucide-react';
+import { ChevronLeft, ExternalLink, Book as BookIcon, Hash, Sparkles } from 'lucide-react';
 import BookCard from '../components/BookCard';
+import { useUser } from '../hooks/useUser';
 
 export default function BookDetail() {
   const { id } = useParams();
+  const { user } = useUser();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [similarBooks, setSimilarBooks] = useState([]);
@@ -15,7 +17,11 @@ export default function BookDetail() {
     const fetchBook = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`/api/books/${id}`);
+        const params = {};
+        if (user?.id) {
+          params.userId = user.id;
+        }
+        const res = await axios.get(`/api/books/${id}`, { params });
         setBook(res.data);
         
         // Una vez tenemos el libro, calculamos similares vía Worker
@@ -37,7 +43,7 @@ export default function BookDetail() {
       }
     };
     fetchBook();
-  }, [id]);
+  }, [id, user?.id]);
 
   if (loading) return <div className="flex h-screen items-center justify-center">Cargando detalles...</div>;
   if (!book) return <div className="p-10 text-center">Libro no encontrado</div>;
@@ -85,26 +91,12 @@ export default function BookDetail() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 gap-6 rounded-2xl bg-white p-8 shadow-sm sm:grid-cols-2">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-gray-100 p-2 text-gray-500"><Building className="h-5 w-5" /></div>
-              <div>
-                <p className="text-xs font-bold uppercase text-gray-400">Editorial</p>
-                <p className="font-medium">{book.publisher || 'No disponible'}</p>
-              </div>
-            </div>
+          <div className="grid grid-cols-2 gap-6 rounded-2xl bg-white p-8 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-gray-100 p-2 text-gray-500"><Hash className="h-5 w-5" /></div>
               <div>
                 <p className="text-xs font-bold uppercase text-gray-400">Páginas</p>
                 <p className="font-medium">{book.pages || 'Desconocido'}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-gray-100 p-2 text-gray-500"><Calendar className="h-5 w-5" /></div>
-              <div>
-                <p className="text-xs font-bold uppercase text-gray-400">Adquirido el</p>
-                <p className="font-medium">{new Date(book.acquired_at).toLocaleDateString()}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -117,11 +109,24 @@ export default function BookDetail() {
           </div>
 
           {/* White Box logic visualization */}
-          <div className="mt-8 rounded-2xl bg-uady-gold/10 p-6 border border-uady-gold/20">
-            <div className="flex items-center gap-2 mb-2 font-bold text-uady-blue">
-              <Info className="h-5 w-5" /> ¿Por qué te recomendamos esto?
+          <div className="mt-8 rounded-2xl bg-gradient-to-br from-blue-50/40 via-white to-amber-50/30 p-6 border border-uady-gold/30 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-3 opacity-10">
+              <Sparkles className="h-24 w-24 text-uady-gold" />
             </div>
-            <p className="text-gray-700 italic">"{book.explanation}"</p>
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2 font-bold text-uady-blue">
+                <Sparkles className="h-5 w-5 text-uady-gold animate-pulse" />
+                <span>¿Por qué te recomendamos esto?</span>
+              </div>
+              <span className="rounded-full bg-uady-gold/10 px-3 py-0.5 text-xs font-bold text-uady-blue border border-uady-gold/20 tracking-wide uppercase">
+                BiblioIA Match
+              </span>
+            </div>
+            <div className="relative z-10">
+              <p className="text-gray-700 italic text-base leading-relaxed pl-4 border-l-2 border-uady-gold/40">
+                “{book.explanation || 'Te recomendamos este libro por su relevancia general en tu área de estudio.'}”
+              </p>
+            </div>
           </div>
         </div>
       </div>

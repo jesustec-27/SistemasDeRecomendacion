@@ -4,7 +4,7 @@ const { fetchKohaRSS } = require('../services/rssParser');
 const { enrichWithOpenLibrary } = require('../services/enricher');
 const db = require('../db');
 
-router.post('/sync', async (req, res) => {
+router.all('/sync', async (req, res) => {
   try {
     const rawBooks = await fetchKohaRSS();
     let syncCount = 0;

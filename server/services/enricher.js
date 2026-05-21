@@ -25,8 +25,8 @@ async function enrichWithOpenLibrary(book) {
     if (info) {
       return {
         ...book,
-        cover_url: info.cover?.large || info.cover?.medium || info.cover?.small || null,
-        pages: info.number_of_pages || null,
+        cover_url: info.cover?.large || info.cover?.medium || info.cover?.small || book.cover_url || null,
+        pages: info.number_of_pages || book.pages || null,
         publisher: info.publishers?.[0]?.name || info.publishers?.[0] || null
       };
     }

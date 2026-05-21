@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import axios from 'axios';
 
-export function useUser() {
+const UserContext = createContext(null);
+
+export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -9,7 +11,6 @@ export function useUser() {
     const storedUser = localStorage.getItem('biblioia_user');
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
-      // Opcionalmente verificar con backend
       setUser(parsedUser);
     }
     setLoading(false);
@@ -40,5 +41,19 @@ export function useUser() {
     setUser(null);
   };
 
-  return { user, loading, saveUser, logout };
+  return React.createElement(
+    UserContext.Provider,
+    { value: { user, loading, saveUser, logout } },
+    children
+  );
 }
+
+export function useUser() {
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  return context;
+}
+
+
