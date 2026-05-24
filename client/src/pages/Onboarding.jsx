@@ -14,6 +14,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     matricula: '',
+    nombre: '',
     carrera: '',
     semestre: 1,
     interests: []
@@ -145,6 +146,7 @@ export default function Onboarding() {
                 </div>
                 <div className="space-y-2 text-sm text-gray-700">
                   <p>Esta matrícula ya existe en la plataforma.</p>
+                  {existingUser.nombre && <p>Estudiante: <strong className="font-semibold text-gray-900">{existingUser.nombre}</strong></p>}
                   <p>Carrera: <strong className="font-semibold text-gray-900">Ingeniería {existingUser.carrera}</strong></p>
                   <p>Semestre: <strong className="font-semibold text-gray-900">{existingUser.semestre}º Semestre</strong></p>
                 </div>
@@ -160,9 +162,19 @@ export default function Onboarding() {
                   <Sparkles className="h-4 w-4 text-uady-gold" />
                   <span>Matrícula Nueva Detectada</span>
                 </div>
-                <div className="space-y-2 text-sm text-gray-700">
+                <div className="space-y-2 text-sm text-gray-700 mb-4">
                   <p>Esta matrícula no está registrada aún.</p>
-                  <p>Haz clic en <strong>Siguiente</strong> para completar tu perfil de estudiante.</p>
+                  <p>Por favor, escribe tu nombre y haz clic en <strong>Siguiente</strong> para completar tu perfil.</p>
+                </div>
+                <div className="space-y-1.5 text-left">
+                  <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block">Tu Nombre Completo</label>
+                  <input
+                    type="text"
+                    value={formData.nombre}
+                    onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
+                    placeholder="Ej. Isaac Newton"
+                    className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-uady-blue focus:ring-0 bg-white"
+                  />
                 </div>
               </div>
             )}
@@ -254,7 +266,7 @@ export default function Onboarding() {
               </button>
             ) : step < 4 ? (
               <button 
-                disabled={(step === 1 && !isMatriculaValid) || (step === 2 && !formData.carrera) || isChecking}
+                disabled={(step === 1 && (!isMatriculaValid || (!existingUser && !formData.nombre?.trim()))) || (step === 2 && !formData.carrera) || isChecking}
                 onClick={handleNext} 
                 className="flex items-center gap-1 rounded-lg bg-uady-blue px-6 py-2 text-white disabled:opacity-50 transition-all"
               >

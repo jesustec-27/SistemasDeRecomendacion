@@ -56,7 +56,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold text-uady-blue tracking-tight">BiblioFlix UADY</h1>
           {user ? (
             <p className="text-gray-500 mt-1">
-              Hola, <strong className="text-uady-blue font-semibold">{user.carrera}</strong>. Aquí tienes tus recomendaciones personalizadas de hoy.
+              Hola, <strong className="text-uady-blue font-semibold">{user.nombre || user.carrera}</strong>. Aquí tienes tus recomendaciones personalizadas de hoy.
             </p>
           ) : (
             <p className="text-gray-500 mt-1">
@@ -86,7 +86,7 @@ export default function Home() {
               <Link to="/profile">
                 <div className="h-10 w-10 overflow-hidden rounded-full bg-uady-gold p-0.5 shadow-sm transition-transform hover:scale-105">
                    <div className="flex h-full w-full items-center justify-center rounded-full bg-white font-bold text-uady-blue text-sm uppercase">
-                     {user.carrera?.[0]}
+                     {(user.nombre || user.carrera)?.[0]}
                    </div>
                 </div>
               </Link>

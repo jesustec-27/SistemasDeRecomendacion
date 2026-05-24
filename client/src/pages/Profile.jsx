@@ -32,11 +32,13 @@ export default function Profile() {
       <div className="mb-12 flex items-center justify-between rounded-2xl bg-uady-blue p-8 text-white shadow-lg">
         <div className="flex items-center gap-6">
           <div className="h-20 w-20 rounded-full bg-uady-gold flex items-center justify-center text-3xl font-bold text-uady-blue">
-            {user?.carrera?.[0]}
+            {(user?.nombre || user?.carrera)?.[0]}
           </div>
           <div>
-            <h1 className="text-2xl font-bold">{user?.carrera}</h1>
-            <p className="opacity-80">{user?.semestre}º Semestre</p>
+            <h1 className="text-2xl font-bold">{user?.nombre || user?.carrera}</h1>
+            <p className="opacity-80">
+              {user?.nombre ? `Ingeniería ${user?.carrera} • ` : ''}{user?.semestre}º Semestre
+            </p>
           </div>
         </div>
         <button 

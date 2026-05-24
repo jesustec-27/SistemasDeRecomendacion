@@ -12,21 +12,22 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const { id, carrera, semestre, interests } = req.body;
+  const { id, nombre, carrera, semestre, interests } = req.body;
   
   try {
     const stmt = db.prepare(`
-      INSERT INTO users (id, carrera, semestre, interests)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO users (id, nombre, carrera, semestre, interests)
+      VALUES (?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
+        nombre=excluded.nombre,
         carrera=excluded.carrera,
         semestre=excluded.semestre,
         interests=excluded.interests
     `);
     
-    stmt.run(id, carrera, semestre, JSON.stringify(interests || []));
+    stmt.run(id, nombre || null, carrera, semestre, JSON.stringify(interests || []));
     
-    res.json({ success: true, user: { id, carrera, semestre, interests } });
+    res.json({ success: true, user: { id, nombre, carrera, semestre, interests } });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

@@ -43,6 +43,7 @@ db.exec(`
 
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
+    nombre TEXT,
     carrera TEXT,
     semestre INTEGER,
     interests TEXT,
@@ -104,6 +105,14 @@ try {
 try {
   db.exec("ALTER TABLE books ADD COLUMN isbn TEXT;");
   console.log("Migration: Successfully added 'isbn' column to books table.");
+} catch (e) {
+  // Ignorar si la columna ya existe
+}
+
+// MIGRACIÓN: Agregar columna nombre si no existe en la tabla de usuarios
+try {
+  db.exec("ALTER TABLE users ADD COLUMN nombre TEXT;");
+  console.log("Migration: Successfully added 'nombre' column to users table.");
 } catch (e) {
   // Ignorar si la columna ya existe
 }
