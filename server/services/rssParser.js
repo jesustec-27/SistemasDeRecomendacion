@@ -155,7 +155,16 @@ function parseTitleAndAuthor(rawTitle, rawCreator) {
     }
   }
 
-  // Clean trailing punctuation and pipes from title
+  // Clean trailing punctuation and pipes from title, preserving the full text
+  if (title.includes('|')) {
+    title = title.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  // Si el título contiene un separador de subtítulo con dos puntos ':', nos quedamos con el título principal
+  if (title.includes(' : ')) {
+    title = title.split(' : ')[0].trim();
+  } else if (title.includes(': ')) {
+    title = title.split(': ')[0].trim();
+  }
   title = title.replace(/[\s\/\:\;\-\|]+$/, '').trim();
   
   if (author && author !== 'Autor desconocido') {

@@ -92,18 +92,28 @@ export default function BookDetail() {
           </div>
 
           <div className="grid grid-cols-2 gap-6 rounded-2xl bg-white p-8 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-gray-100 p-2 text-gray-500"><Hash className="h-5 w-5" /></div>
-              <div>
-                <p className="text-xs font-bold uppercase text-gray-400">Páginas</p>
-                <p className="font-medium">{book.pages || 'Desconocido'}</p>
+            {book.pages && book.pages > 0 ? (
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-gray-100 p-2 text-gray-500"><Hash className="h-5 w-5" /></div>
+                <div>
+                  <p className="text-xs font-bold uppercase text-gray-400">Páginas</p>
+                  <p className="font-medium">{book.pages}</p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-gray-100 p-2 text-gray-500"><Hash className="h-5 w-5" /></div>
+                <div>
+                  <p className="text-xs font-bold uppercase text-gray-400">{book.isbn ? 'ISBN' : 'Código Sistema'}</p>
+                  <p className="font-medium text-sm break-all">{book.isbn || book.id}</p>
+                </div>
+              </div>
+            )}
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-gray-100 p-2 text-gray-500"><BookIcon className="h-5 w-5" /></div>
               <div>
                 <p className="text-xs font-bold uppercase text-gray-400">Biblioteca</p>
-                <p className="font-medium">{book.branch}</p>
+                <p className="font-medium">{book.branch || 'INGE'}</p>
               </div>
             </div>
           </div>

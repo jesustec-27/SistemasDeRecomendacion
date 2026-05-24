@@ -147,6 +147,41 @@ try {
   console.error("Error repairing Koha links in SQLite:", err);
 }
 
+// MIGRACIÓN: Limpieza retroactiva de caracteres '|' y '/' en los títulos de libros
+try {
+  const books = db.prepare('SELECT id, title FROM books').all();
+  const updateStmt = db.prepare('UPDATE books SET title = ? WHERE id = ?');
+  
+  let cleanedCount = 0;
+  db.transaction(() => {
+    for (const book of books) {
+      if (book.title && (book.title.includes('|') || book.title.includes(': ') || book.title.includes(' : ') || book.title.endsWith('/') || book.title.includes(' /'))) {
+        let newTitle = book.title;
+        if (newTitle.includes('|')) {
+          newTitle = newTitle.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+        if (newTitle.includes(' : ')) {
+          newTitle = newTitle.split(' : ')[0].trim();
+        } else if (newTitle.includes(': ')) {
+          newTitle = newTitle.split(': ')[0].trim();
+        }
+        newTitle = newTitle.replace(/\s*\/+$/, '').trim();
+        newTitle = newTitle.replace(/[\s\.,;\/]+$/, '').trim();
+        if (newTitle && newTitle !== book.title) {
+          updateStmt.run(newTitle, book.id);
+          cleanedCount++;
+        }
+      }
+    }
+  })();
+  if (cleanedCount > 0) {
+    console.log(`Migration: Cleaned up ${cleanedCount} book titles containing pipe/slashes in the database.`);
+  }
+} catch (err) {
+  console.error("Error cleaning book titles in SQLite:", err);
+}
+
+
 // MIGRACIÓN: Categorización automática retroactiva de libros
 try {
   const books = db.prepare('SELECT id, title FROM books').all();
