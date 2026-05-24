@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BookOpen } from 'lucide-react';
 
-export default function BookCover({ coverUrl, title, author, category, className = "" }) {
+export default function BookCover({ coverUrl, title, author, category, isbn, className = "" }) {
   const [hasError, setHasError] = useState(false);
 
   // Generar un fondo determinista pero vistoso basado en el título del libro
@@ -44,10 +44,37 @@ export default function BookCover({ coverUrl, title, author, category, className
     return !isAbsolute && !isRelative;
   };
 
-  if (coverUrl && !isPlaceholderCover(coverUrl) && !hasError) {
+  const toIsbn10 = (isbnVal) => {
+    if (!isbnVal) return '';
+    const clean = isbnVal.replace(/[^0-9X]/gi, '');
+    if (clean.length === 10) return clean;
+    if (clean.length === 13 && clean.startsWith('978')) {
+      const nineDigits = clean.substring(3, 12);
+      let sum = 0;
+      for (let i = 0; i < 9; i++) {
+        sum += parseInt(nineDigits[i], 10) * (10 - i);
+      }
+      const remainder = sum % 11;
+      let checkDigit = 11 - remainder;
+      if (checkDigit === 10) checkDigit = 'X';
+      else if (checkDigit === 11) checkDigit = '0';
+      return nineDigits + checkDigit;
+    }
+    return clean;
+  };
+
+  let activeCoverUrl = coverUrl;
+  if ((!activeCoverUrl || isPlaceholderCover(activeCoverUrl)) && isbn) {
+    const amazonIsbn = toIsbn10(isbn);
+    if (amazonIsbn.length === 10) {
+      activeCoverUrl = `https://images-na.ssl-images-amazon.com/images/P/${amazonIsbn}.01.LZZZZZZZ.jpg`;
+    }
+  }
+
+  if (activeCoverUrl && !isPlaceholderCover(activeCoverUrl) && !hasError) {
     return (
       <img
-        src={coverUrl}
+        src={activeCoverUrl}
         alt={title}
         onLoad={(e) => {
           if (e.target.naturalWidth <= 1 && e.target.naturalHeight <= 1) {

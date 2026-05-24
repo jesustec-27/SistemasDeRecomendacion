@@ -33,6 +33,7 @@ export default function BookCard({ book }) {
           title={book.title} 
           author={book.author} 
           category={book.category} 
+          isbn={book.isbn}
         />
         
         {/* Explanation Badge overlay on hover */}

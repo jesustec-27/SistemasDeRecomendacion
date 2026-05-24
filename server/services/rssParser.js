@@ -280,10 +280,31 @@ async function fetchKohaRSS() {
       
       let coverUrl = extractAndUpgradeCover(item.description);
       
+      // Función auxiliar para convertir ISBN-13 a ISBN-10
+      const isbn13To10 = (isbnVal) => {
+        if (!isbnVal) return null;
+        const clean = isbnVal.replace(/[^0-9X]/gi, '');
+        if (clean.length === 10) return clean;
+        if (clean.length === 13 && clean.startsWith('978')) {
+          const nineDigits = clean.substring(3, 12);
+          let sum = 0;
+          for (let i = 0; i < 9; i++) {
+            sum += parseInt(nineDigits[i], 10) * (10 - i);
+          }
+          const remainder = sum % 11;
+          let checkDigit = 11 - remainder;
+          if (checkDigit === 10) checkDigit = 'X';
+          else if (checkDigit === 11) checkDigit = '0';
+          return nineDigits + checkDigit;
+        }
+        return clean;
+      };
+      
       // Si la portada de la descripción es nula, vacía o inválida, y tenemos un ISBN válido,
-      // generamos un enlace de portada directo, seguro (HTTPS) y de alta calidad a Amazon
+      // generamos un enlace de portada directo, seguro (HTTPS) y de alta calidad a Amazon usando ISBN-10
       if ((!coverUrl || coverUrl.includes('no-image') || coverUrl.includes('no-img')) && isbn) {
-        coverUrl = `https://images-na.ssl-images-amazon.com/images/P/${isbn}.01.LZZZZZZZ.jpg`;
+        const amazonIsbn = isbn13To10(isbn);
+        coverUrl = `https://images-na.ssl-images-amazon.com/images/P/${amazonIsbn}.01.LZZZZZZZ.jpg`;
       }
       
       // Garantizar que todos los enlaces de portadas usen HTTPS para evitar problemas de contenido mixto
