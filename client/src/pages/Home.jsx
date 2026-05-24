@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useUser } from '../hooks/useUser';
 import BookCard from '../components/BookCard';
 import Chatbot from '../components/Chatbot';
-import { Sparkles, RefreshCw, Settings, LogIn } from 'lucide-react';
+import { Sparkles, Settings, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Home() {
@@ -68,14 +68,7 @@ export default function Home() {
         <div className="flex flex-wrap gap-3 items-center">
           {user ? (
             <>
-              <button 
-                onClick={handleSync}
-                disabled={syncing}
-                className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 transition-all shadow-sm"
-              >
-                <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-                Sincronizar Catálogo
-              </button>
+              {/* Botón de sincronización desactivado temporalmente */}
               <Link 
                 to="/dashboard"
                 className="flex items-center gap-2 rounded-xl bg-uady-blue px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-800 transition-all shadow-sm"
@@ -119,16 +112,7 @@ export default function Home() {
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 py-20 text-center bg-white shadow-sm">
           <Sparkles className="mb-4 h-12 w-12 text-gray-300 animate-pulse" />
           <h2 className="text-xl font-medium text-gray-600">No hay libros todavía</h2>
-          {user ? (
-            <>
-              <p className="mb-6 text-gray-500">Sincroniza el catálogo de la biblioteca para comenzar.</p>
-              <button onClick={handleSync} className="rounded-lg bg-uady-blue px-6 py-2.5 text-white font-semibold hover:bg-blue-800 transition-all">
-                Sincronizar Ahora
-              </button>
-            </>
-          ) : (
-            <p className="text-gray-500">El catálogo se encuentra vacío.</p>
-          )}
+          <p className="text-gray-500">El catálogo se encuentra vacío.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Info, Heart, Eye } from 'lucide-react';
 import axios from 'axios';
@@ -6,14 +7,25 @@ import BookCover from './BookCover';
 
 export default function BookCard({ book }) {
   const { user } = useUser();
+  const [isSaved, setIsSaved] = useState(false);
 
   const handleInteraction = async (type) => {
+    if (!user) {
+      if (type === 'save') {
+        alert("Inicia sesión para guardar tus libros favoritos.");
+      }
+      return;
+    }
+
     try {
       await axios.post('/api/interactions', {
         user_id: user.id,
         book_id: book.id,
         type
       });
+      if (type === 'save') {
+        setIsSaved(true);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -72,11 +84,16 @@ export default function BookCard({ book }) {
             <button 
               onClick={(e) => {
                 e.preventDefault();
-                handleInteraction('save');
+                if (!isSaved) handleInteraction('save');
               }}
-              className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-gray-200 py-1.5 text-xs font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-100"
+              className={`flex flex-1 items-center justify-center gap-1 rounded-lg border py-1.5 text-xs font-semibold transition-all ${
+                isSaved 
+                  ? 'bg-red-50 text-red-600 border-red-200 shadow-sm' 
+                  : 'border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-100'
+              }`}
             >
-              <Heart className="h-3.5 w-3.5" /> Guardar
+              <Heart className={`h-3.5 w-3.5 transition-transform ${isSaved ? 'fill-red-500 text-red-500 scale-110' : ''}`} />
+              {isSaved ? '¡Guardado!' : 'Guardar'}
             </button>
             <Link 
               to={`/book/${book.id}`}
