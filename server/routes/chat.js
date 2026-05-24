@@ -6,8 +6,11 @@ router.post('/', async (req, res) => {
   const { query, userId } = req.body;
   if (!query || !userId) return res.status(400).json({ error: 'Query and userId required' });
 
-  const response = await askBiblioIA(query, userId);
-  res.json({ response });
+  const result = await askBiblioIA(query, userId);
+  res.json({ 
+    response: result.text, 
+    matchedBooks: result.matchedBooks 
+  });
 });
 
 module.exports = router;

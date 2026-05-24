@@ -42,7 +42,7 @@ export default function Profile() {
         <button 
           onClick={() => {
             logout();
-            window.location.href = '/onboarding';
+            window.location.href = '/';
           }}
           className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm hover:bg-white/20"
         >

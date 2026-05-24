@@ -5,29 +5,53 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 async function askBiblioIA(userQuery, userId) {
   try {
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
-    const allBooks = db.prepare('SELECT title, author, subjects, category FROM books').all();
-    
+    const allBooks = db.prepare('SELECT id, title, author, link, subjects, category FROM books').all();
     const catalogSnippet = allBooks.map(b => `- ${b.title} (${b.author}) [${b.category}]`).join('\n');
 
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       systemInstruction: `Eres BiblioIA, un asistente experto para la biblioteca de ingeniería de la UADY.
       Tu tarea es recomendar libros del siguiente catálogo basado en la consulta del usuario.
-      Usuario: Estudiante de ${user?.carrera || 'Ingeniería'}, ${user?.semestre || '1'}º semestre.
       
       Catálogo disponible:
       ${catalogSnippet}
       
-      Responde de forma amable, en español, y menciona específicamente los títulos del catálogo que coinciden. Si no hay una coincidencia exacta, sugiere el más cercano.`
+      Responde de forma amable, en español, y menciona específicamente los títulos del catálogo que coinciden de manera idéntica. Si no hay una coincidencia exacta, sugiere el más cercano.`
     });
 
     const result = await model.generateContent(userQuery);
     const response = await result.response;
-    return response.text();
+    const responseText = response.text();
+
+    // Escanear libros del catálogo que fueron mencionados en la respuesta de la IA
+    const matchedBooks = [];
+    const responseTextLower = responseText.toLowerCase();
+
+    allBooks.forEach(b => {
+      if (b.title) {
+        const titleLower = b.title.toLowerCase();
+        // Verificar si el título del libro está mencionado en la respuesta
+        if (responseTextLower.includes(titleLower)) {
+          // Evitar duplicar
+          if (!matchedBooks.some(m => m.id === b.id)) {
+            matchedBooks.push({
+              id: b.id,
+              title: b.title,
+              author: b.author,
+              link: b.link
+            });
+          }
+        }
+      }
+    });
+
+    return { text: responseText, matchedBooks };
   } catch (error) {
     console.error('Gemini API Error:', error);
-    return "Lo siento, tuve un problema consultando el procesado. ¿Puedes intentarlo de nuevo?";
+    return { 
+      text: "Lo siento, tuve un problema al consultar el catálogo. ¿Puedes intentarlo de nuevo?", 
+      matchedBooks: [] 
+    };
   }
 }
 

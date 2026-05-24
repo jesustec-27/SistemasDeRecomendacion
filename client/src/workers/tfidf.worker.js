@@ -57,9 +57,12 @@ self.onmessage = (e) => {
     .map(book => {
       const bookText = `${book.title} ${book.author} ${JSON.stringify(book.subjects)}`;
       const bookVector = getVector(bookText, idf);
+      const similarity = cosineSimilarity(currentVector, bookVector);
       return {
         ...book,
-        similarity: cosineSimilarity(currentVector, bookVector)
+        similarity: similarity,
+        relevanceScore: similarity,
+        explanation: `Este libro tiene un ${Math.round(similarity * 100)}% de similitud temática basada en contenido (TF-IDF) y materias.`
       };
     })
     .sort((a, b) => b.similarity - a.similarity)

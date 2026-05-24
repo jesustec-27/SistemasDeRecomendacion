@@ -3,13 +3,28 @@ import axios from 'axios';
 import { useUser } from '../hooks/useUser';
 import { Sliders, TrendingUp, PieChart, Map, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RePie, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RePie, Pie, Cell, Legend } from 'recharts';
 
 export default function Dashboard() {
   const { user } = useUser();
+  const [weights, setWeights] = useState(() => {
+    try {
+      const stored = localStorage.getItem('biblioia_weights');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (typeof parsed.content === 'number' && typeof parsed.collab === 'number') {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.error("Error loading weights from localStorage:", e);
+    }
+    return { content: 0.6, collab: 0.4 };
+  });
   const [analytics, setAnalytics] = useState(null);
-  const [weights, setWeights] = useState({ content: 0.6, collab: 0.4 });
   const [loading, setLoading] = useState(true);
+  const [saveStatus, setSaveStatus] = useState('');
+
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -54,8 +69,10 @@ export default function Dashboard() {
                 type="range" min="0" max="1" step="0.1" 
                 value={weights.content} 
                 onChange={(e) => {
-                  const val = parseFloat(e.target.value);
-                  setWeights({ content: val, collab: 1 - val });
+                  const val = parseFloat(parseFloat(e.target.value).toFixed(1));
+                  const newWeights = { content: val, collab: parseFloat((1 - val).toFixed(1)) };
+                  setWeights(newWeights);
+                  localStorage.setItem('biblioia_weights', JSON.stringify(newWeights));
                 }}
                 className="w-full accent-uady-blue"
               />
@@ -70,8 +87,10 @@ export default function Dashboard() {
                 type="range" min="0" max="1" step="0.1" 
                 value={weights.collab} 
                 onChange={(e) => {
-                  const val = parseFloat(e.target.value);
-                  setWeights({ collab: val, content: 1 - val });
+                  const val = parseFloat(parseFloat(e.target.value).toFixed(1));
+                  const newWeights = { collab: val, content: parseFloat((1 - val).toFixed(1)) };
+                  setWeights(newWeights);
+                  localStorage.setItem('biblioia_weights', JSON.stringify(newWeights));
                 }}
                 className="w-full accent-uady-blue"
               />
@@ -80,6 +99,21 @@ export default function Dashboard() {
             <div className="rounded-xl bg-blue-50 p-4 text-xs text-uady-blue leading-relaxed">
               <p>Ajustar estos valores cambiará cómo se priorizan los libros en tu feed principal.</p>
             </div>
+
+            <button 
+              onClick={() => {
+                localStorage.setItem('biblioia_weights', JSON.stringify(weights));
+                setSaveStatus('success');
+                setTimeout(() => setSaveStatus(''), 3000);
+              }}
+              className={`w-full rounded-xl py-3 text-sm font-bold text-white transition-all shadow-sm flex items-center justify-center gap-2 ${
+                saveStatus === 'success' 
+                  ? 'bg-green-600 hover:bg-green-700' 
+                  : 'bg-uady-blue hover:bg-blue-800'
+              }`}
+            >
+              {saveStatus === 'success' ? '¡Configuración Guardada!' : 'Guardar Configuración'}
+            </button>
           </div>
         </div>
 
@@ -125,18 +159,20 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height="100%">
                   <RePie>
                     <Pie
-                      data={analytics?.categories.slice(0, 5)}
-                      innerRadius={60}
-                      outerRadius={80}
+                      data={analytics?.categories || []}
+                      innerRadius={50}
+                      outerRadius={70}
                       paddingAngle={5}
                       dataKey="count"
                       nameKey="category"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     >
-                      {analytics?.categories.map((entry, index) => (
+                      {(analytics?.categories || []).map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip formatter={(value, name) => [`${value} libros`, `Categoría: ${name}`]} />
+                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
                   </RePie>
                 </ResponsiveContainer>
               </div>

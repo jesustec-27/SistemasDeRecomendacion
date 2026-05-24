@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ChevronLeft, ExternalLink, Book as BookIcon, Hash, Sparkles } from 'lucide-react';
 import BookCard from '../components/BookCard';
 import { useUser } from '../hooks/useUser';
+import BookCover from '../components/BookCover';
 
 export default function BookDetail() {
   const { id } = useParams();
@@ -57,15 +58,13 @@ export default function BookDetail() {
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
         {/* Portada */}
         <div className="lg:col-span-1">
-          <div className="overflow-hidden rounded-2xl bg-gray-100 shadow-xl">
-            {book.cover_url ? (
-              <img src={book.cover_url} alt={book.title} className="w-full object-cover" />
-            ) : (
-              <div className="flex aspect-[3/4] flex-col items-center justify-center bg-gray-200 p-12 text-center">
-                 <div className="mb-4 text-6xl font-serif text-gray-400">UADY</div>
-                 <div className="font-bold text-gray-500 uppercase tracking-widest">{book.category}</div>
-              </div>
-            )}
+          <div className="overflow-hidden rounded-2xl bg-gray-100 shadow-xl aspect-[3/4] flex">
+            <BookCover 
+              coverUrl={book.cover_url} 
+              title={book.title} 
+              author={book.author} 
+              category={book.category} 
+            />
           </div>
           
           <a 

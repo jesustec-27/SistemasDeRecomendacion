@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Info, Heart, Eye } from 'lucide-react';
 import axios from 'axios';
 import { useUser } from '../hooks/useUser';
+import BookCover from './BookCover';
 
 export default function BookCard({ book }) {
   const { user } = useUser();
@@ -27,18 +28,12 @@ export default function BookCard({ book }) {
         onClick={() => handleInteraction('view')}
         className="relative aspect-[3/4] overflow-hidden bg-gray-100"
       >
-        {book.cover_url ? (
-          <img 
-            src={book.cover_url} 
-            alt={book.title} 
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center">
-            <div className="mb-2 text-4xl font-serif text-gray-300">UADY</div>
-            <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">{book.category}</div>
-          </div>
-        )}
+        <BookCover 
+          coverUrl={book.cover_url} 
+          title={book.title} 
+          author={book.author} 
+          category={book.category} 
+        />
         
         {/* Explanation Badge overlay on hover */}
         <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 opacity-0 transition-opacity group-hover:opacity-100">
@@ -57,18 +52,20 @@ export default function BookCard({ book }) {
         
         <div className="mt-auto space-y-3">
           {/* Relevancia Bar */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-gray-400">
-              <span>Relevancia</span>
-              <span>{Math.round(relevancePercent)}%</span>
+          {book.relevanceScore !== undefined && book.relevanceScore !== null && (
+            <div className="space-y-1">
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                <span>Relevancia</span>
+                <span>{Math.round(relevancePercent)}%</span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                <div 
+                  className="h-full bg-uady-blue transition-all duration-1000" 
+                  style={{ width: `${relevancePercent}%` }} 
+                />
+              </div>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-              <div 
-                className="h-full bg-uady-blue transition-all duration-1000" 
-                style={{ width: `${relevancePercent}%` }} 
-              />
-            </div>
-          </div>
+          )}
 
           <div className="flex gap-2">
             <button 
