@@ -1,7 +1,7 @@
 function tokenize(text) {
   if (!text) return [];
   return text.toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .replace(/[^\w\s]/g, ' ')
     .split(/\s+/)
     .filter(t => t.length > 2);

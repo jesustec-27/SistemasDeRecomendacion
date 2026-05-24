@@ -190,17 +190,17 @@ try {
     const out1 = execSync('git rm --cached server/.env', { cwd: projectRoot, stdio: 'pipe' }).toString();
     console.log("Git Migration: server/.env untracked successfully.", out1.trim());
   } catch (e) {
-    // Silencioso si ya estaba ignorado o no trackeado
+    
   }
   
   try {
     const out2 = execSync('git rm --cached .env', { cwd: projectRoot, stdio: 'pipe' }).toString();
     console.log("Git Migration: root .env untracked successfully.", out2.trim());
   } catch (e) {
-    // Silencioso si ya estaba ignorado o no trackeado
+    
   }
 } catch (err) {
-  // Ignorar fallas si Git no está instalado o no es repositorio git
+  
 }
 
 

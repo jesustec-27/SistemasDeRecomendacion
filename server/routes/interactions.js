@@ -15,7 +15,6 @@ router.post('/', (req, res) => {
       UPDATE books SET interaction_count = interaction_count + 1 WHERE id = ?
     `);
     
-    // Ejecutar en transacción
     const transaction = db.transaction(() => {
       insertInteraction.run(user_id, book_id, type, rating || null);
       updateBookCount.run(book_id);

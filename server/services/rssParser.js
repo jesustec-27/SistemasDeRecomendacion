@@ -154,8 +154,6 @@ function parseTitleAndAuthor(rawTitle, rawCreator) {
       }
     }
   }
-
-  // Clean trailing punctuation and pipes from title, preserving the full text
   if (title.includes('|')) {
     title = title.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
   }

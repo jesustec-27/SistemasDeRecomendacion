@@ -13,15 +13,15 @@ function getHybridRecommendations(userId, options = {}) {
     user.interests = JSON.parse(user.interests || '[]');
     const allBooks = db.prepare('SELECT * FROM books').all();
     
-    // 1. Content scores
+    // 1. Puntajes de CONTENIDO
     const contentScores = contentBased.getRecommendations(user, allBooks);
     
-    // 2. Collab scores
+    // 2. Puntajes de COLABORACIÓN
     const collabScores = collaborative.getCollaborativeScores(userId);
     const collabMap = {};
     collabScores.forEach(s => collabMap[s.bookId] = s.score);
     
-    // 3. Combine and Boost
+    // 3. Puntaje híbrido
     const results = allBooks.map(book => {
       const cScoreData = contentScores.find(s => s.bookId === book.id);
       const cbScore = cScoreData ? cScoreData.score : 0;

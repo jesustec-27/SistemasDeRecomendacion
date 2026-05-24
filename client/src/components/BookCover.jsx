@@ -87,7 +87,7 @@ export default function BookCover({ coverUrl, title, author, category, isbn, cla
     );
   }
 
-  // Placeholder premium con diseño de portada clásica
+  // Placeholder con diseño de portada clásica
   return (
     <div className={`relative flex h-full w-full flex-col justify-between overflow-hidden bg-gradient-to-br ${gradient} p-5 text-white shadow-inner border-l-[6px] border-uady-gold/90 ${className}`}>
       {/* Patrón de líneas sutil de fondo (Marca de agua de libro elegante) */}
