@@ -9,7 +9,7 @@ export default function Dashboard() {
   const { user } = useUser();
   const [weights, setWeights] = useState(() => {
     try {
-      const stored = localStorage.getItem('biblioia_weights');
+      const stored = localStorage.getItem('biblioflix_weights');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (typeof parsed.content === 'number' && typeof parsed.collab === 'number') {
@@ -50,7 +50,7 @@ export default function Dashboard() {
         <ChevronLeft className="h-4 w-4" /> Volver al feed
       </Link>
 
-      <h1 className="mb-8 text-3xl font-bold text-uady-blue">Panel de Control BiblioIA</h1>
+      <h1 className="mb-8 text-3xl font-bold text-uady-blue">Panel de Control BiblioFlix</h1>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Sliders de Pesos */}
@@ -72,7 +72,7 @@ export default function Dashboard() {
                   const val = parseFloat(parseFloat(e.target.value).toFixed(1));
                   const newWeights = { content: val, collab: parseFloat((1 - val).toFixed(1)) };
                   setWeights(newWeights);
-                  localStorage.setItem('biblioia_weights', JSON.stringify(newWeights));
+                  localStorage.setItem('biblioflix_weights', JSON.stringify(newWeights));
                 }}
                 className="w-full accent-uady-blue"
               />
@@ -90,7 +90,7 @@ export default function Dashboard() {
                   const val = parseFloat(parseFloat(e.target.value).toFixed(1));
                   const newWeights = { collab: val, content: parseFloat((1 - val).toFixed(1)) };
                   setWeights(newWeights);
-                  localStorage.setItem('biblioia_weights', JSON.stringify(newWeights));
+                  localStorage.setItem('biblioflix_weights', JSON.stringify(newWeights));
                 }}
                 className="w-full accent-uady-blue"
               />
@@ -102,7 +102,7 @@ export default function Dashboard() {
 
             <button 
               onClick={() => {
-                localStorage.setItem('biblioia_weights', JSON.stringify(weights));
+                localStorage.setItem('biblioflix_weights', JSON.stringify(weights));
                 setSaveStatus('success');
                 setTimeout(() => setSaveStatus(''), 3000);
               }}

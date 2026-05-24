@@ -58,7 +58,7 @@ export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: '¡Hola! Soy BiblioIA. ¿En qué puedo ayudarte hoy?' }
+    { role: 'assistant', text: '¡Hola! Soy BiblioFlix. ¿En qué puedo ayudarte hoy?' }
   ]);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
@@ -79,7 +79,7 @@ export default function Chatbot() {
         matchedBooks: res.data.matchedBooks
       }]);
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'assistant', text: 'Error al conectar con BiblioIA.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', text: 'Error al conectar con BiblioFlix.' }]);
     } finally {
       setLoading(false);
     }
@@ -99,7 +99,7 @@ export default function Chatbot() {
           <div className="bg-uady-blue p-4 text-white flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5 text-uady-gold" />
-              <span className="font-bold text-sm">Pregúntale a BiblioIA</span>
+              <span className="font-bold text-sm">Pregúntale a BiblioFlix</span>
             </div>
             <button onClick={() => setIsOpen(false)}><X className="h-5 w-5" /></button>
           </div>

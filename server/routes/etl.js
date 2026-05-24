@@ -11,8 +11,8 @@ router.all('/sync', async (req, res) => {
     
     // Preparar el statement para insertar/actualizar
     const upsertStmt = db.prepare(`
-      INSERT INTO books (id, title, author, subjects, category, cover_url, link, acquired_at, branch, pages, publisher)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO books (id, title, author, subjects, category, cover_url, link, acquired_at, branch, pages, publisher, isbn)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         title=excluded.title,
         author=excluded.author,
@@ -22,7 +22,8 @@ router.all('/sync', async (req, res) => {
         link=excluded.link,
         acquired_at=excluded.acquired_at,
         pages=excluded.pages,
-        publisher=excluded.publisher
+        publisher=excluded.publisher,
+        isbn=excluded.isbn
     `);
 
     for (const book of rawBooks) {
@@ -39,7 +40,8 @@ router.all('/sync', async (req, res) => {
         enriched.acquiredAt,
         enriched.branch,
         enriched.pages || null,
-        enriched.publisher || null
+        enriched.publisher || null,
+        enriched.isbn || null
       );
       syncCount++;
     }

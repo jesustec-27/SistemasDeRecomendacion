@@ -1,7 +1,7 @@
 {
-  "name": "biblioia-server",
+  "name": "biblioflix-server",
   "version": "1.0.0",
-  "description": "Backend for BiblioIA UADY",
+  "description": "Backend for BiblioFlix UADY",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

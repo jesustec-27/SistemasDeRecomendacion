@@ -1,4 +1,4 @@
-# BiblioIA UADY - Sistema de Recomendación de Libros
+# BiblioFlix UADY - Sistema de Recomendación de Libros
 
 Sistema de recomendación de libros basado en servicios web para la Facultad de Ingeniería de la UADY.
 

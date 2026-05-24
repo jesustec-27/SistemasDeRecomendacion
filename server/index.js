@@ -27,7 +27,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chat', chatRoutes);
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'BiblioIA API is running' });
+  res.json({ status: 'ok', message: 'BiblioFlix API is running' });
 });
 
 app.listen(PORT, () => {

@@ -1,7 +1,26 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 
-const db = new Database(path.join(__dirname, 'biblioia.db'));
+// MIGRACIÓN FÍSICA DE BASE DE DATOS (biblioia.db -> biblioflix.db)
+const srcDb = path.join(__dirname, 'biblioia.db');
+const destDb = path.join(__dirname, 'biblioflix.db');
+try {
+  if (fs.existsSync(srcDb)) {
+    const destExists = fs.existsSync(destDb);
+    const destSize = destExists ? fs.statSync(destDb).size : 0;
+    
+    if (!destExists || destSize < 35000) {
+      // Si el archivo está abierto o bloqueado, intentamos cerrar cualquier conexión
+      fs.copyFileSync(srcDb, destDb);
+      console.log("Migration: Physical database file copied from biblioia.db to biblioflix.db successfully.");
+    }
+  }
+} catch (err) {
+  console.error("Migration error copying database file:", err);
+}
+
+const db = new Database(destDb);
 
 // Inicializar tablas
 db.exec(`
@@ -17,6 +36,7 @@ db.exec(`
     branch TEXT,
     pages INTEGER,
     publisher TEXT,
+    isbn TEXT,
     interaction_count INTEGER DEFAULT 0,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   );
@@ -39,6 +59,55 @@ db.exec(`
   );
 `);
 
+// MIGRACIÓN DE DATOS VÍA SQL ATTACH (copiar desde biblioia.db si la base de datos destino está vacía)
+try {
+  const booksCount = db.prepare("SELECT count(*) as count FROM books").get().count;
+  if (booksCount === 0 && fs.existsSync(srcDb)) {
+    console.log("Migration: 'books' table is empty. Attaching 'biblioia.db' to copy records...");
+    const srcDbSqlPath = srcDb.replace(/\\/g, '/');
+    try {
+      db.exec(`
+        ATTACH '${srcDbSqlPath}' AS oldDb;
+        INSERT OR IGNORE INTO books (id, title, author, subjects, category, cover_url, link, acquired_at, branch, pages, publisher, isbn, interaction_count, created_at)
+          SELECT id, title, author, subjects, category, cover_url, link, acquired_at, branch, pages, publisher, isbn, interaction_count, created_at FROM oldDb.books;
+        INSERT OR IGNORE INTO users (id, carrera, semestre, interests, created_at)
+          SELECT id, carrera, semestre, interests, created_at FROM oldDb.users;
+        INSERT OR IGNORE INTO interactions (id, user_id, book_id, type, rating, created_at)
+          SELECT id, user_id, book_id, type, rating, created_at FROM oldDb.interactions;
+        DETACH oldDb;
+      `);
+      console.log("Migration: Successfully copied all records from biblioia.db to biblioflix.db via SQL ATTACH.");
+    } catch (errInner) {
+      console.log("Fallback migration without isbn column in source database...");
+      try {
+        db.exec(`
+          INSERT OR IGNORE INTO books (id, title, author, subjects, category, cover_url, link, acquired_at, branch, pages, publisher, interaction_count, created_at)
+            SELECT id, title, author, subjects, category, cover_url, link, acquired_at, branch, pages, publisher, interaction_count, created_at FROM oldDb.books;
+          INSERT OR IGNORE INTO users (id, carrera, semestre, interests, created_at)
+            SELECT id, carrera, semestre, interests, created_at FROM oldDb.users;
+          INSERT OR IGNORE INTO interactions (id, user_id, book_id, type, rating, created_at)
+            SELECT id, user_id, book_id, type, rating, created_at FROM oldDb.interactions;
+          DETACH oldDb;
+        `);
+        console.log("Migration: Successfully copied all records via fallback SQL ATTACH.");
+      } catch (errDetach) {
+        try { db.exec("DETACH oldDb;"); } catch(e) {}
+        throw errDetach;
+      }
+    }
+  }
+} catch (e) {
+  console.error("Migration error copying records via SQL:", e);
+}
+
+// MIGRACIÓN: Agregar columna isbn si no existe
+try {
+  db.exec("ALTER TABLE books ADD COLUMN isbn TEXT;");
+  console.log("Migration: Successfully added 'isbn' column to books table.");
+} catch (e) {
+  // Ignorar si la columna ya existe
+}
+
 // Limpieza automática de portadas de provisión previas (Koha placeholders o links rotos)
 try {
   db.prepare(`
@@ -48,10 +117,25 @@ try {
        OR cover_url LIKE '%no-img%' 
        OR cover_url LIKE '%opac-tmpl%' 
        OR cover_url LIKE '%spacer.gif%'
-       OR (cover_url IS NOT NULL AND cover_url NOT LIKE 'http://%' AND cover_url NOT LIKE 'https://%')
   `).run();
 } catch (e) {
   console.error("Error al limpiar portadas de provisión previas en SQLite:", e);
+}
+
+// MIGRACIÓN: Reparación de enlaces Koha rotos, nulos o con formato objeto
+try {
+  const result = db.prepare(`
+    UPDATE books 
+    SET link = 'https://bibliotecahub.uady.mx/cgi-bin/koha/opac-detail.pl?biblionumber=' || id 
+    WHERE link IS NULL 
+       OR link = '' 
+       OR link LIKE '%[object%'
+  `).run();
+  if (result.changes > 0) {
+    console.log(`Migration: Repaired ${result.changes} broken or empty Koha links in the database.`);
+  }
+} catch (err) {
+  console.error("Error repairing Koha links in SQLite:", err);
 }
 
 // MIGRACIÓN: Categorización automática retroactiva de libros

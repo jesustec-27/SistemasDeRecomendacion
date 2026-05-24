@@ -118,7 +118,7 @@ export default function BookDetail() {
                 <span>¿Por qué te recomendamos esto?</span>
               </div>
               <span className="rounded-full bg-uady-gold/10 px-3 py-0.5 text-xs font-bold text-uady-blue border border-uady-gold/20 tracking-wide uppercase">
-                BiblioIA Match
+                BiblioFlix Match
               </span>
             </div>
             <div className="relative z-10">

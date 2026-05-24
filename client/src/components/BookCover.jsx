@@ -23,13 +23,25 @@ export default function BookCover({ coverUrl, title, author, category, className
   const isPlaceholderCover = (url) => {
     if (!url) return true;
     const lowercaseUrl = url.toLowerCase();
-    return (
+    
+    if (
       lowercaseUrl.includes('no-image') ||
       lowercaseUrl.includes('no-img') ||
       lowercaseUrl.includes('opac-tmpl') ||
-      lowercaseUrl.includes('spacer.gif') ||
-      (!lowercaseUrl.startsWith('http://') && !lowercaseUrl.startsWith('https://'))
-    );
+      lowercaseUrl.includes('spacer.gif')
+    ) {
+      return true;
+    }
+    
+    const isAbsolute = lowercaseUrl.startsWith('http://') || lowercaseUrl.startsWith('https://');
+    const isRelative = lowercaseUrl.startsWith('/') || 
+                       lowercaseUrl.includes('.jpg') || 
+                       lowercaseUrl.includes('.png') || 
+                       lowercaseUrl.includes('.jpeg') || 
+                       lowercaseUrl.includes('.webp') || 
+                       lowercaseUrl.includes('.svg');
+                       
+    return !isAbsolute && !isRelative;
   };
 
   if (coverUrl && !isPlaceholderCover(coverUrl) && !hasError) {

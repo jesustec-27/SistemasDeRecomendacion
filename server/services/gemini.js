@@ -3,14 +3,14 @@ const db = require('../db');
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-async function askBiblioIA(userQuery, userId) {
+async function askBiblioFlix(userQuery, userId) {
   try {
     const allBooks = db.prepare('SELECT id, title, author, link, subjects, category FROM books').all();
     const catalogSnippet = allBooks.map(b => `- ${b.title} (${b.author}) [${b.category}]`).join('\n');
 
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash",
-      systemInstruction: `Eres BiblioIA, un asistente experto para la biblioteca de ingeniería de la UADY.
+      systemInstruction: `Eres BiblioFlix, un asistente experto para la biblioteca de ingeniería de la UADY.
       Tu tarea es recomendar libros del siguiente catálogo basado en la consulta del usuario.
       
       Catálogo disponible:
@@ -55,4 +55,4 @@ async function askBiblioIA(userQuery, userId) {
   }
 }
 
-module.exports = { askBiblioIA };
+module.exports = { askBiblioFlix };

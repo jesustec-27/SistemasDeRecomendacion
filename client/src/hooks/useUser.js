@@ -8,7 +8,7 @@ export function UserProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('biblioia_user');
+    const storedUser = localStorage.getItem('biblioflix_user');
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
@@ -18,16 +18,16 @@ export function UserProvider({ children }) {
 
   const saveUser = async (userData) => {
     try {
-      // Generar UUID si no tiene
+      // Generar UUID si no tiene y no es matrícula
       if (!userData.id) {
-        userData.id = crypto.randomUUID();
+        userData.id = userData.matricula || crypto.randomUUID();
       }
       
       // Guardar en backend
       await axios.post('/api/users', userData);
       
       // Guardar en localStorage
-      localStorage.setItem('biblioia_user', JSON.stringify(userData));
+      localStorage.setItem('biblioflix_user', JSON.stringify(userData));
       setUser(userData);
       return true;
     } catch (error) {
@@ -36,14 +36,41 @@ export function UserProvider({ children }) {
     }
   };
 
+  const checkUserExists = async (matricula) => {
+    try {
+      const res = await axios.get(`/api/users/${matricula}`);
+      if (res.data && res.data.id) {
+        return { exists: true, user: res.data };
+      }
+      return { exists: false };
+    } catch (error) {
+      if (error.response?.status === 404) {
+        return { exists: false };
+      }
+      console.error('Error checking user existence:', error);
+      throw error;
+    }
+  };
+
+  const loginUser = async (userData) => {
+    try {
+      localStorage.setItem('biblioflix_user', JSON.stringify(userData));
+      setUser(userData);
+      return true;
+    } catch (error) {
+      console.error('Error logging in user:', error);
+      return false;
+    }
+  };
+
   const logout = () => {
-    localStorage.removeItem('biblioia_user');
+    localStorage.removeItem('biblioflix_user');
     setUser(null);
   };
 
   return React.createElement(
     UserContext.Provider,
-    { value: { user, loading, saveUser, logout } },
+    { value: { user, loading, saveUser, checkUserExists, loginUser, logout } },
     children
   );
 }

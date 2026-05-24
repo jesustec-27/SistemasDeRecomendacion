@@ -2,6 +2,15 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+router.get('/', (req, res) => {
+  try {
+    const users = db.prepare('SELECT * FROM users LIMIT 10').all();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 router.post('/', (req, res) => {
   const { id, carrera, semestre, interests } = req.body;
   

@@ -17,7 +17,7 @@ export default function Home() {
     try {
       if (user?.id) {
         // Modo Personalizado (Usuario con Sesión)
-        const storedWeights = localStorage.getItem('biblioia_weights');
+        const storedWeights = localStorage.getItem('biblioflix_weights');
         const { content = 0.6, collab = 0.4 } = storedWeights ? JSON.parse(storedWeights) : {};
         const res = await axios.get(`/api/recommendations/${user.id}?boosted=true&contentWeight=${content}&collabWeight=${collab}`);
         setRecommendations(res.data);
@@ -53,7 +53,7 @@ export default function Home() {
     <div className="mx-auto max-w-7xl px-4 py-8">
       <header className="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-uady-blue tracking-tight">BiblioIA UADY</h1>
+          <h1 className="text-4xl font-bold text-uady-blue tracking-tight">BiblioFlix UADY</h1>
           {user ? (
             <p className="text-gray-500 mt-1">
               Hola, <strong className="text-uady-blue font-semibold">{user.carrera}</strong>. Aquí tienes tus recomendaciones personalizadas de hoy.

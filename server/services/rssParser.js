@@ -44,6 +44,11 @@ function extractAndUpgradeCover(description) {
   if (coverUrl.includes('.TZZZZZZZ.')) {
     coverUrl = coverUrl.replace('.TZZZZZZZ.', '.LZZZZZZZ.');
   }
+
+  // Garantizar que la portada siempre sea HTTPS
+  if (coverUrl.startsWith('http://')) {
+    coverUrl = coverUrl.replace('http://', 'https://');
+  }
   
   return coverUrl;
 }
@@ -226,11 +231,37 @@ async function fetchKohaRSS() {
     }
     
     return items.map(item => {
-      // Extraer biblionumber del link
-      const biblionumber = item.link?.match(/biblionumber=(\d+)/)?.[1] || 
-                           item.guid?.['#text'] || 
-                           item.guid ||
-                           Math.random().toString(36).substr(2, 9);
+      // 1. Extraer el string del link de forma segura (soporta string u objeto con #text/@_href)
+      let actualLink = '';
+      if (typeof item.link === 'string') {
+        actualLink = item.link;
+      } else if (item.link?.['#text']) {
+        actualLink = item.link['#text'];
+      } else if (item.link?.['@_href']) {
+        actualLink = item.link['@_href'];
+      } else if (typeof item.guid === 'string') {
+        actualLink = item.guid;
+      } else if (item.guid?.['#text']) {
+        actualLink = item.guid['#text'];
+      }
+
+      // 2. Extraer biblionumber del link o del guid
+      let biblionumber = null;
+      if (actualLink) {
+        const match = actualLink.match(/biblionumber=(\d+)/);
+        if (match) biblionumber = match[1];
+      }
+      
+      if (!biblionumber) {
+        const guidStr = typeof item.guid === 'string' ? item.guid : item.guid?.['#text'] || '';
+        const match = guidStr.match(/biblionumber=(\d+)/);
+        biblionumber = match ? match[1] : guidStr || Math.random().toString(36).substr(2, 9);
+      }
+
+      // 3. Si actualLink es nulo o inválido, construirlo usando el biblionumber
+      if (!actualLink || actualLink.includes('[object')) {
+        actualLink = `https://bibliotecahub.uady.mx/cgi-bin/koha/opac-detail.pl?biblionumber=${biblionumber}`;
+      }
       
       // Los sujetos pueden venir en dc:subject
       let subjects = item['dc:subject'];
@@ -240,8 +271,25 @@ async function fetchKohaRSS() {
         subjects = [];
       }
 
-      const isbn = extractISBN(item['dc:identifier']);
-      const coverUrl = extractAndUpgradeCover(item.description);
+      let isbn = extractISBN(item['dc:identifier']);
+      
+      // Intentar extraer el ISBN de la descripción si no se encontró en dc:identifier
+      if (!isbn && typeof item.description === 'string') {
+        isbn = extractISBN(item.description);
+      }
+      
+      let coverUrl = extractAndUpgradeCover(item.description);
+      
+      // Si la portada de la descripción es nula, vacía o inválida, y tenemos un ISBN válido,
+      // generamos un enlace de portada directo, seguro (HTTPS) y de alta calidad a Amazon
+      if ((!coverUrl || coverUrl.includes('no-image') || coverUrl.includes('no-img')) && isbn) {
+        coverUrl = `https://images-na.ssl-images-amazon.com/images/P/${isbn}.01.LZZZZZZZ.jpg`;
+      }
+      
+      // Garantizar que todos los enlaces de portadas usen HTTPS para evitar problemas de contenido mixto
+      if (coverUrl && coverUrl.startsWith('http://')) {
+        coverUrl = coverUrl.replace('http://', 'https://');
+      }
       
       // Separar título y autor e intentar deducir el autor real si está en el título
       const parsed = parseTitleAndAuthor(item.title, item['dc:creator']);
@@ -255,7 +303,7 @@ async function fetchKohaRSS() {
         author: parsed.author,
         subjects: subjects,
         category: categorizeBook(parsed.title),
-        link: item.link,
+        link: actualLink,
         acquiredAt: item.pubDate || new Date().toISOString(),
         branch: 'INGE',
         isbn: isbn,
