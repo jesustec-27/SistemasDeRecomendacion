@@ -1,21 +1,67 @@
-# Sistemas de Recomendación de Información 🎬🖥️
-<p align="center">
-  <img src="https://i.pinimg.com/originals/e2/fa/48/e2fa4889be0fa89cd6fc76c60d88dbca.gif">
-</p>
-Es el repositorio en el cual estaremos guardando las entregas de la asignatura. <br>
+# BiblioFlix UADY - Sistema de Recomendación de Libros
 
-## ⭐️ Entregas
+Sistema de recomendación de libros basado en servicios web para la Facultad de Ingeniería de la UADY.
 
-## 🌟 Miembros del Equipo
-- Pech Herrera Moises Isaac - [LinkedIn](https://www.linkedin.com/in/moises-isaac-herrera?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)
-- Puch Rodríguez Karina Gabriela - [LinkedIn](https://www.linkedin.com/in/karina-gabriela-puch-rodríguez-74922728a/)
-- Tec Bonilla Jesús Antonio - [LinkedIn](https://www.linkedin.com/in/jes%C3%BAs-tec-20b25428a/)
+## Características
 
-<img src="/Equipo/zack.jpeg" width="200">
-<img src="/Equipo/KarinaPuch.jpg" width="200">
-<img src="/Equipo/JesusTec.jpg" width="200">
+- **Pipeline ETL**: Sincronización con el catálogo RSS de Koha y enriquecimiento con Open Library API.
+- **Cold Start**: Onboarding personalizado por carrera, semestre e intereses.
+- **Modelo Híbrido**: Combinación de Filtrado Basado en Contenido (TF-IDF) y Filtrado Colaborativo.
+- **Caja Blanca**: Explicaciones legibles por humanos para cada recomendación.
+- **Web Worker**: Cálculo de similitud de libros off-main-thread en el cliente.
+- **Chatbot Inteligente**: Integración con Claude API para consultas de catálogo en lenguaje natural.
 
+## Stack Tecnológico
 
-<p align="center">
-<img src="https://i.pinimg.com/originals/84/c3/2d/84c32dec01c6a8b67220f5c32a1df7b3.gif" width="300">
-</p>
+- **Backend**: Node.js, Express, Better-SQLite3.
+- **Frontend**: React, Vite, TailwindCSS.
+- **IA**: Anthropic Claude API.
+
+## Instalación
+
+### Requisitos previos
+- Node.js v18+
+- Una API key proveída por Google AI Studio
+
+### Pasos
+
+1. **Clonar el repositorio** e instalar dependencias:
+   ```bash
+   # Servidor
+   cd server
+   npm install
+   
+   # Cliente
+   cd ../client
+   npm install
+   ```
+
+2. **Configuración**:
+   Crea un archivo `.env` en la carpeta `server/` con:
+   ```env
+   PORT=3001
+   GOOGLE_API_KEY=EXAMPLE
+   ```
+
+3. **Ejecución**:
+   ```bash
+   # En una terminal (Server)
+   cd server
+   npm run dev
+   
+   # En otra terminal (Client)
+   cd client
+   npm run dev
+   ```
+
+4. **Sincronización inicial**:
+   Una vez abierta la aplicación (habitualmente en `http://localhost:5173`), haz clic en el botón **"Sincronizar Catálogo"** o ejecuta:
+   ```bash
+   curl -X POST http://localhost:3001/api/etl/sync
+   ```
+
+## Estructura del Proyecto
+
+- `/server`: API REST y lógica de recomendación.
+- `/client`: Interfaz de usuario en React.
+- `/Equipo`: Información del equipo de desarrollo.

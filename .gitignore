@@ -1,0 +1,23 @@
+# Dependencias
+node_modules/
+.pnpm-debug.log*
+
+# Configuración y Secretos
+.env
+server/.env
+
+# Base de datos local
+server/*.db
+server/*.db-journal
+
+# Compilación y builds
+dist/
+build/
+.vite/
+
+# Logs y temporales
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
